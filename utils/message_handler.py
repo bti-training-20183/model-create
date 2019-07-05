@@ -1,19 +1,34 @@
+import pika
+import config
 import sys
 import os
+import socket
+import time
+
 sys.path.append(os.getcwd())
-import config
-import pika
 
 
 class MessageHandler:
     def __init__(self, host):
-        self.connection = pika.BlockingConnection(
-            pika.ConnectionParameters(config.RABBITMQ_CONNECTION))
-        self.channel = self.connection.channel()
-        self.channel.queue_declare('from_client')
-        self.channel.queue_declare('from_creator')
-        self.channel.queue_declare('from_preprocessor')
-        self.channel.queue_declare('from_deployer')
+        isreachable = False
+        while isreachable is False:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                s.connect(('rabbitmq', 5672))
+                print("Connected")
+                isreachable = True
+            except socket.error as e:
+                print("Not connected")
+                time.sleep(2)
+            s.close()
+        if isreachable:
+            self.connection = pika.BlockingConnection(
+                pika.ConnectionParameters(config.RABBITMQ_CONNECTION))
+            self.channel = self.connection.channel()
+            self.channel.queue_declare('from_client')
+            self.channel.queue_declare('from_creator')
+            self.channel.queue_declare('from_preprocessor')
+            self.channel.queue_declare('from_deployer')
 
     def sendMessage(self, queue, body):
         self.channel.basic_publish(
@@ -25,6 +40,3 @@ class MessageHandler:
             queue=queue, on_message_callback=callback, auto_ack=True)
         print(f' [*] Waiting for messages from {queue}. To exit press CTRL+C')
         self.channel.start_consuming()
-
-
-MessageHdlr = MessageHandler(config.RABBITMQ_CONNECTION)
