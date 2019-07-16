@@ -1,1 +1,6 @@
 pika==1.0.1
+scikit-learn
+tensorflow
+keras
+pandas
+minio==4.0.18

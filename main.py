@@ -1,4 +1,6 @@
+from utils.datastore_handler import DataStore_Handler
 from utils.message_handler import MessageHandler
+from timeseriesmodels import LSTMModel
 import os
 import sys
 import config
@@ -7,8 +9,36 @@ sys.path.append(os.getcwd())
 
 
 def callback(channel, method, properties, body):
-    print(f'[x] Received {body} from {properties}')
-    MessageHdlr.sendMessage('from_creator', 'Dummy message from deployer')
+	print(f'[x] Received {body} from {properties}')
+
+	'''
+	LOAD DATA FROM MINIO --> CREATE - TRAIN - SAVE MODEL --> UPLOAD MODEL TO MINIO
+	'''
+	msg = json.loads(body)
+	to_path = 'tmp/' + msg['name'] + '.csv'
+	from_path = msg['file_url']
+
+	# download data from minio
+	DataStore_Handler.download(from_path, to_path)
+
+	# read data from downloaded file
+	data = pandas.read_csv(to_path)
+
+	# create model
+	model = LSTMModel(data)
+	model.compile()
+
+	# train model
+	model.train()
+
+	# save model
+	model.save()
+
+	# TODO: upload model to minio
+
+
+	# send notification
+	MessageHdlr.sendMessage('from_creator', 'Model training done!')
 
 
 class Creator:
