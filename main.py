@@ -39,7 +39,7 @@ def callback(channel, method, properties, body):
     # upload model to minio
     filename = msg['name']
     from_path = 'tmp/model.h5'
-    file_extension = from_path.split('.')[-1]
+    file_extension = '.' + from_path.split('.')[-1]
     to_path = filename + '/model/' + filename + file_extension
     DataStore_Handler.upload(from_path, to_path)
     os.remove(from_path)
