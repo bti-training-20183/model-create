@@ -1,6 +1,11 @@
 from sklearn.preprocessing import MinMaxScaler
+import tensorflow as tf
 from keras.layers import LSTM, Dense, Dropout, Flatten
 from keras.models import Sequential
+import os
+import sys
+sys.path.append(os.getcwd())
+
 import numpy as np
 
 class LSTMModel:
