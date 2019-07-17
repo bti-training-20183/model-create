@@ -17,7 +17,7 @@ def callback(channel, method, properties, body):
 	LOAD DATA FROM MINIO --> CREATE - TRAIN - SAVE MODEL --> UPLOAD MODEL TO MINIO
 	'''
     msg = json.loads(body)
-    to_path = 'tmp/' + msg['name'] + '.csv'
+    to_path = 'tmp/' + msg['name'] + msg['type']
     from_path = msg['file_uri']
 
     # download data from minio
@@ -37,17 +37,21 @@ def callback(channel, method, properties, body):
     model.save()
 
     # upload model to minio
-    fullname = msg['name']
+    filename = msg['name']
+    file_extension = msg['type']
     from_path = 'tmp/model.h5'
-    filename, file_extension = os.path.splitext(fullname)
-    to_path = filename + '/model/' + filename + '.h5'
+    to_path = filename + '/model/' + filename + file_extension
     DataStore_Handler.upload(from_path, to_path)
-
-	# TODO: Save logs to Mongo
-
+    os.remove(from_path)
+    # TODO: Save logs to Mongo
+    msg = {
+        "name": filename,
+        "type": file_extension,
+        "file_uri": to_path
+    }
     # send notification
     MessageHdlr.sendMessage(
-        'from_creator', 'Model training done! Send to deployer')
+        'from_creator', json.dumps(msg))
 
 
 class Creator:

@@ -15,10 +15,10 @@ class MessageHandler:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 s.connect(('rabbitmq', 5672))
-                print("Connected")
+                print("Connected to RabbitMQ")
                 isreachable = True
             except socket.error as e:
-                print("Not connected")
+                print("Not connected to RabbitMQ")
                 time.sleep(2)
             s.close()
         if isreachable:
@@ -40,7 +40,8 @@ class MessageHandler:
             queue=queue, on_message_callback=callback, auto_ack=True)
         print(f' [*] Waiting for messages from {queue}. To exit press CTRL+C')
         self.channel.start_consuming()
-    
+
     def close(self):
         self.connection.close()
 
+Message_Handler = MessageHandler(config.RABBITMQ_CONNECTION)
