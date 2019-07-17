@@ -4,13 +4,13 @@ from keras.models import Sequential
 import numpy as np
 
 class LSTMModel:
-	'''LSTM model for data. Input must be a numpy'''
+	'''LSTM model for data. Input must be a none header dataframe'''
 	def __init__(self, data):
 		self.TIMESTEPS = 5
 		self.BATCH_SIZE = 32
 		self.EPOCHS = 50
 
-		data = numpy.array(data)
+		data = data.to_numpy()
 
 		# normalize data
 		scaler = MinMaxScaler(feature_range=(0,1))
