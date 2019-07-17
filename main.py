@@ -22,7 +22,7 @@ def callback(channel, method, properties, body):
 	DataStore_Handler.download(from_path, to_path)
 
 	# read data from downloaded file
-	data = pandas.read_csv(to_path)
+	data = pandas.read_csv(to_path, header=None)
 
 	# create model
 	model = LSTMModel(data)
