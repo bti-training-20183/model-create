@@ -13,8 +13,9 @@ class LSTMModel:
 	def __init__(self, data):
 		self.TIMESTEPS = 5
 		self.BATCH_SIZE = 32
-		self.EPOCHS = 50
-
+		# self.EPOCHS = 50
+		self.EPOCHS = 1 # For testing only
+		
 		data = data.to_numpy()
 
 		# normalize data

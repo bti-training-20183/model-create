@@ -19,7 +19,7 @@ class MessageHandler:
                 isreachable = True
             except socket.error as e:
                 print("Not connected to RabbitMQ")
-                time.sleep(2)
+                time.sleep(5)
             s.close()
         if isreachable:
             self.connection = pika.BlockingConnection(
