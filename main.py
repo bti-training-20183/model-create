@@ -1,4 +1,5 @@
 from utils.datastore_handler import DataStore_Handler
+from utils.database_handler import Database_Handler
 from utils.message_handler import MessageHandler
 from models.timeseries_models import LSTMModel
 import pandas
@@ -43,13 +44,27 @@ def callback(channel, method, properties, body):
     to_path = filename + '/model/' + filename + file_extension
     DataStore_Handler.upload(from_path, to_path)
     os.remove(from_path)
-    # TODO: Save logs to Mongo
+    # SAVE LOGS TO MONGO
+    logs = {
+        "name": filename,
+        "type": file_extension,
+        'date': time.strftime("%Y-%m-%d %H:%M:%S"),
+        "file_uri": to_path,
+        # TODO add algorithm
+        'algorithm': '',
+        'preprocessor_id': received_msg.get('preprocessor_id', '')
+    }
+    logged_info = Database_Handler.insert(logs)
+    # send notification
     msg = {
         "name": filename,
         "type": file_extension,
-        "file_uri": to_path
+        'date': time.strftime("%Y-%m-%d %H:%M:%S"),
+        "file_uri": to_path,
+        # TODO add algorithm
+        'algorithm': '',
+        'creator_id': logged_info.inserted_id
     }
-    # send notification
     MessageHdlr.sendMessage(
         'from_creator', json.dumps(msg))
 
