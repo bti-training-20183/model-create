@@ -17,9 +17,9 @@ def callback(channel, method, properties, body):
     '''
 	LOAD DATA FROM MINIO --> CREATE - TRAIN - SAVE MODEL --> UPLOAD MODEL TO MINIO
 	'''
-    msg = json.loads(body)
-    to_path = 'tmp/' + msg['name'] + msg['type']
-    from_path = msg['file_uri']
+    received_msg = json.loads(body)
+    to_path = 'tmp/' + received_msg['name'] + received_msg['type']
+    from_path = received_msg['file_uri']
 
     # download data from minio
     DataStore_Handler.download(from_path, to_path)
@@ -38,7 +38,7 @@ def callback(channel, method, properties, body):
     model.save()
 
     # upload model to minio
-    filename = msg['name']
+    filename = received_msg['name']
     from_path = 'tmp/model.h5'
     file_extension = '.' + from_path.split('.')[-1]
     to_path = filename + '/model/' + filename + file_extension
@@ -50,8 +50,6 @@ def callback(channel, method, properties, body):
         "type": file_extension,
         'date': time.strftime("%Y-%m-%d %H:%M:%S"),
         "file_uri": to_path,
-        # TODO add algorithm
-        'algorithm': '',
         'preprocessor_id': received_msg.get('preprocessor_id', '')
     }
     logged_info = Database_Handler.insert(logs)
@@ -61,9 +59,7 @@ def callback(channel, method, properties, body):
         "type": file_extension,
         'date': time.strftime("%Y-%m-%d %H:%M:%S"),
         "file_uri": to_path,
-        # TODO add algorithm
-        'algorithm': '',
-        'creator_id': logged_info.inserted_id
+        'creator_id': str(logged_info.inserted_id)
     }
     MessageHdlr.sendMessage(
         'from_creator', json.dumps(msg))
