@@ -6,3 +6,5 @@ pika==1.0.1
 tensorflow==1.14.0
 scikit_learn==0.21.2
 pymongo==3.8.0
+scipy==1.2
+pmdarima==1.2.1
