@@ -1,7 +1,8 @@
 from utils.datastore_handler import DataStore_Handler
 from utils.database_handler import Database_Handler
 from utils.message_handler import MessageHandler
-from models.timeseries_models import LSTMModel
+from models.timeseries_models import LSTMModel, ARIMAModel
+from sklearn.model_selection import train_test_split
 import pandas
 import os
 import sys
@@ -24,18 +25,50 @@ def callback(channel, method, properties, body):
     # download data from minio
     DataStore_Handler.download(from_path, to_path)
 
+    
     # read data from downloaded file
     data = pandas.read_csv(to_path, header=None)
+    data = data.to_numpy()
 
-    # create model
-    model = LSTMModel(data)
-    model.compile()
+    # split data to train set and test set
+    train_data, test_data = train_test_split(data, test_size=0.2, random_state=3, shuffle=True)
 
-    # train model
-    model.train()
 
-    # save model
-    model.save()
+    '''
+    train models
+    '''
+    # 1. lstm
+    model_lstm = LSTMModel(train_data, test_data)
+    model_lstm.compile()
+    model_lstm.train()
+
+    # 2. arima
+    model_arima = ARIMAModel(train_data, test_data)
+
+
+    '''
+    find the best model
+    '''
+    final_scores = dict()
+    rmse_loss_lstm = model_lstm.rmse_loss()
+    final_scores['lstm'] = rmse_loss_lstm
+
+    rmse_loss_arima = model_arima.rmse_loss()
+    final_scores['arima'] = rmse_loss_arima
+
+    best_alg = min(final_scores.keys(), key=(lambda k: final_scores[k]))
+
+    
+    '''
+    save the best model
+    '''
+    if best_alg == 'lstm':
+        model_lstm.save()
+    elif best_alg == 'arima':
+        model_arima.save()  
+    else:       # set lstm as the default model
+        model_lstm.save()
+
 
     # upload model to minio
     filename = received_msg['name']
