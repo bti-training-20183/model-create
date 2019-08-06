@@ -31,7 +31,7 @@ def callback(channel, method, properties, body):
     data = data.to_numpy()
 
     # split data to train set and test set
-    train_data, test_data = train_test_split(data, test_size=0.2, random_state=3, shuffle=True)
+    train_data, test_data = train_test_split(data, test_size=0.2)
 
 
     '''
