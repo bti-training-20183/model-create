@@ -62,9 +62,11 @@ def callback(channel, method, properties, body):
     '''
     save the best model
     '''
+    from_path = 'tmp/model.h5'
     if best_alg == 'lstm':
         model_lstm.save()
     elif best_alg == 'arima':
+        from_path = 'tmp/model.pkl'
         model_arima.save()  
     else:       # set lstm as the default model
         model_lstm.save()
@@ -72,7 +74,6 @@ def callback(channel, method, properties, body):
 
     # upload model to minio
     filename = received_msg['name']
-    from_path = 'tmp/model.h5'
     file_extension = '.' + from_path.split('.')[-1]
     to_path = filename + '/model/' + filename + file_extension
     DataStore_Handler.upload(from_path, to_path)

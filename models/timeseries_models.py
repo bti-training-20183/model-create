@@ -7,6 +7,8 @@ from pmdarima.arima import auto_arima
 from sklearn.metrics import mean_squared_error
 import os
 import sys
+import joblib
+import pickle
 sys.path.append(os.getcwd())
 
 
@@ -74,7 +76,9 @@ class ARIMAModel:
 			seasonal=True,d=1, D=1, trace=True,error_action='ignore',suppress_warnings=True)
 	
 	def save(self):
-		self.model.save("tmp/model.h5")
+		# Serialize with Pickle
+		with open('tmp/model.pkl', 'wb') as pkl:
+			pickle.dump(self.model, pkl)
 
 	def rmse_loss(self):
 		preds, _ = self.model.predict(n_periods=self.test_data.shape[0], return_conf_int=True)
