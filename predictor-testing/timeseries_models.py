@@ -6,7 +6,8 @@ from keras.layers import LSTM, Dense, Dropout, Flatten
 from keras.models import Sequential
 from pmdarima.arima import auto_arima
 from sklearn.metrics import mean_squared_error
-
+from fbprophet import Prophet
+import math
 
 class LSTMModel:
 	def __init__(self, train_data, test_data):
@@ -96,3 +97,33 @@ class ARIMAModel:
 	def predict(self, n_periods):
 		preds = self.model_for_predicting.predict(n_periods=n_periods)
 		return preds
+
+class PROPHETModel:
+    def __init__(self, data_frame):
+        self.data_frame = data_frame
+        self.data = self.data_frame[['Date', 'Close']]
+        self.data.colums['ds', 'y']
+        self.train_size = int(len(self.data)*0.8)
+        self.val_size = len(self.data) - self.train_size
+        self.train_data = self.data[0:train_size]
+        self.val_data= self.data[train_size:len(self.data)]
+        self.prophet_model = Prophet()
+
+    def rmse_loss(self):
+        y_true = list(self.val_data['y'])
+        future_date = self.prophet_model.make_future_dataframe(self.val_size, freq='d')
+        preds_future_date = self.prophet_model.predict(future_date)
+        y_hat = preds_future_date['yhat'][len(preds_future_date)-self.val_size:len(preds_future_date)]
+        y_hat = list(y_hat)
+        rmse = np.sqrt(np.mean((np.array(y_true)-np.array(y_hat))**2))
+        return rmse
+    
+    def save(self):
+        self.prophet_model.fit(self.train_data)
+        with open("tmp/prophet_model.pkl", "wb") as pkl:
+            pickle.dump(self.prophet_model, pkl)
+
+    def predict(self, n_periods):
+        future_date_frame = self.prophet_model.make_future_dataframe(self.val_size + self.n_preiods, freq='d')
+        preds = self.prophet_model.predict(future_date_frame)
+        return preds
