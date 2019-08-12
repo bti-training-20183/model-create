@@ -1,6 +1,6 @@
 from utils.datastore_handler import DataStore_Handler
 from utils.database_handler import Database_Handler
-from utils.message_handler import MessageHandler
+from utils.message_handler import Message_Handler
 from models.timeseries_models import LSTMModel, ARIMAModel
 from sklearn.model_selection import train_test_split
 import pandas
@@ -95,7 +95,7 @@ def callback(channel, method, properties, body):
         "file_uri": to_path,
         'creator_id': str(logged_info.inserted_id)
     }
-    MessageHdlr.sendMessage(
+    Message_Handler.sendMessage(
         'from_creator', json.dumps(msg))
 
 
@@ -110,6 +110,6 @@ class Creator:
 if __name__ == "__main__":
     if not os.path.exists('tmp'):
         os.makedirs('tmp')
-    MessageHdlr = MessageHandler(config.RABBITMQ_CONNECTION)
+    # MessageHdlr = MessageHandler(config.RABBITMQ_CONNECTION)
     model_creator = Creator()
-    model_creator.listen(config.QUEUE["from_preprocessor"], MessageHdlr)
+    model_creator.listen(config.QUEUE["from_preprocessor"], Message_Handler)
