@@ -105,8 +105,8 @@ class PROPHETModel:
         self.data.colums['ds', 'y']
         self.train_size = int(len(self.data)*0.8)
         self.val_size = len(self.data) - self.train_size
-        self.train_data = self.data[0:train_size]
-        self.val_data= self.data[train_size:len(self.data)]
+        self.train_data = self.data[0:self.train_size]
+        self.val_data= self.data[self.train_size:len(self.data)]
         self.prophet_model = Prophet()
 
     def rmse_loss(self):
