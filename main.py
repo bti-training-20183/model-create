@@ -86,7 +86,7 @@ def callback(channel, method, properties, body):
         "file_uri": to_path,
         'preprocessor_id': received_msg.get('preprocessor_id', '')
     }
-    logged_info = Database_Handler.insert(logs)
+    logged_info = Database_Handler.insert(config.MONGO_COLLECTION, logs)
     # send notification
     msg = {
         "name": filename,
