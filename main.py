@@ -14,7 +14,9 @@ sys.path.append(os.getcwd())
 
 def callback(channel, method, properties, body):
     print(f'[x] Received {body} from {properties}')
-
+    # Clear file in tmp/ folder
+    for f in os.listdir('/tmp'):
+        os.remove('tmp/'+ f)
     '''
 	LOAD DATA FROM MINIO --> CREATE - TRAIN - SAVE MODEL --> UPLOAD MODEL TO MINIO
 	'''
@@ -62,28 +64,30 @@ def callback(channel, method, properties, body):
     '''
     save the best model
     '''
-    from_path = 'tmp/model.h5'
+    model_file = 'model.h5'
     if best_alg == 'lstm':
         model_lstm.save()
     elif best_alg == 'arima':
-        from_path = 'tmp/model.pkl'
+        model_file = 'model.pkl'
         model_arima.save()  
     else:       # set lstm as the default model
         model_lstm.save()
 
 
-    # upload model to minio
+    # upload model and necessary files to minio
+    files = [model_file] # filelist for forwarding to edge-server
     filename = received_msg['name']
-    file_extension = '.' + from_path.split('.')[-1]
-    to_path = filename + '/model/' + filename + file_extension
-    DataStore_Handler.upload(from_path, to_path)
-    os.remove(from_path)
+    file_extension = '.' + model_file.split('.')[-1]
+    dest = filename + '/model/'
+    for fname in files:
+        DataStore_Handler.upload('tmp/'+fname, dest + fname)
+        os.remove('tmp/'+fname)
     # SAVE LOGS TO MONGO
     logs = {
         "name": filename,
         "type": file_extension,
         'date': time.strftime("%Y-%m-%d %H:%M:%S"),
-        "file_uri": to_path,
+        "file_uri": dest,
         'preprocessor_id': received_msg.get('preprocessor_id', '')
     }
     logged_info = Database_Handler.insert(config.MONGO_COLLECTION, logs)
@@ -92,7 +96,8 @@ def callback(channel, method, properties, body):
         "name": filename,
         "type": file_extension,
         'date': time.strftime("%Y-%m-%d %H:%M:%S"),
-        "file_uri": to_path,
+        "file_uri": dest,
+        'files': files,
         'creator_id': str(logged_info.inserted_id)
     }
     Message_Handler.sendMessage(
