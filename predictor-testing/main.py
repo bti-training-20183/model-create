@@ -49,16 +49,13 @@ pred_df = pd.read_csv("aame.us.txt")
 pred_data = pred_df.iloc[0:5][['Open', 'High', 'Low', 'Close', 'Volume', 'OpenInt']].to_numpy()
 pred_data = np.expand_dims(pred_data, 0)
 
-print("Input shape: ")
-print(pred_data.shape)
-
 lstm_pred = model_lstm.predict(pred_data)
 arima_pred = model_arima.predict(pred_data.shape[0])
 
-# print("lstm:")
-# print(lstm_pred)
-# print(lstm_pred.shape)
+print("lstm:")
+print(lstm_pred)
+print(lstm_pred.shape)
 
-# print("arima:")
-# print(arima_pred)
-# print(arima_pred.shape)
+print("arima:")
+print(arima_pred)
+print(arima_pred.shape)

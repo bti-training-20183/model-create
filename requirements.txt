@@ -1,11 +1,10 @@
 minio==4.0.18
 Keras==2.2.4
-pandas==0.24.2
 numpy==1.16.4
+pandas==0.24.2
 pika==1.0.1
 tensorflow==1.14.0
 scikit_learn==0.21.2
 pymongo==3.8.0
 scipy==1.2
 pmdarima==1.2.1
-fbprophet==0.5
