@@ -65,6 +65,7 @@ def callback(channel, method, properties, body):
     save the best model
     '''
     model_file = 'model.h5'
+    scaler_file = 'scaler.pkl'
     if best_alg == 'lstm':
         model_lstm.save()
     elif best_alg == 'arima':
@@ -75,13 +76,15 @@ def callback(channel, method, properties, body):
 
 
     # upload model and necessary files to minio
-    files = [model_file] # filelist for forwarding to edge-server
+    files = [model_file, scaler_file] # filelist for forwarding to edge-server
     filename = received_msg['name']
     file_extension = '.' + model_file.split('.')[-1]
     dest = filename + '/model/'
     for fname in files:
-        DataStore_Handler.upload('tmp/'+fname, dest + fname)
-        os.remove('tmp/'+fname)
+        if os.path.isfile('tmp/'+fname):         # some models don't have scaler.pkl, etc.
+            DataStore_Handler.upload('tmp/'+fname, dest + fname)
+            os.remove('tmp/'+fname)
+
     # SAVE LOGS TO MONGO
     logs = {
         "name": filename,
@@ -91,6 +94,7 @@ def callback(channel, method, properties, body):
         'preprocessor_id': received_msg.get('preprocessor_id', '')
     }
     logged_info = Database_Handler.insert(config.MONGO_COLLECTION, logs)
+    
     # send notification
     msg = {
         "name": filename,
