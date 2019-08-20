@@ -88,7 +88,7 @@ class ARIMAModel:
 		self.test_data = test_data[:, test_data.shape[1] - 3]
 
 		# create model
-		self.model = auto_arima(self.train_data, start_p=1, start_q=1,max_p=2, max_q=2, m=5,start_P=0, 
+		self.model = auto_arima(self.train_data, start_p=1, start_q=1,max_p=1, max_q=1, m=1,start_P=0, 
 			seasonal=True,d=1, D=1, trace=True,error_action='ignore',suppress_warnings=True)
 	
 	def save(self):

@@ -81,7 +81,7 @@ def callback(channel, method, properties, body):
     file_extension = '.' + model_file.split('.')[-1]
     dest = filename + '/model/'
     for fname in files:
-        if os.path.isfile('tmp'+fname):         # some models don't have scaler.pkl, etc.
+        if os.path.isfile('tmp/'+fname):         # some models don't have scaler.pkl, etc.
             DataStore_Handler.upload('tmp/'+fname, dest + fname)
             os.remove('tmp/'+fname)
 
