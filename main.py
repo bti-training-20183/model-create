@@ -84,6 +84,8 @@ def callback(channel, method, properties, body):
         if os.path.isfile('tmp/'+fname):         # some models don't have scaler.pkl, etc.
             DataStore_Handler.upload('tmp/'+fname, dest + fname)
             os.remove('tmp/'+fname)
+        else:
+            files.remove(fname)
 
     # SAVE LOGS TO MONGO
     logs = {
