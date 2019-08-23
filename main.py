@@ -1,7 +1,8 @@
 from utils.datastore_handler import DataStore_Handler
 from utils.database_handler import Database_Handler
 from utils.message_handler import Message_Handler
-from models.timeseries_models import LSTMModel, ARIMAModel
+from models.lstm_model import LSTMOneDay, LSTMFiveDays, LSTMOneMonth, LSTMSixMonths, LSTMOneYear
+from models.arima_model import ARIMAModel
 from sklearn.model_selection import train_test_split
 import pandas
 import os
@@ -31,6 +32,7 @@ def callback(channel, method, properties, body):
     # read data from downloaded file
     data = pandas.read_csv(to_path, header=None)
     data = data.to_numpy()
+    print(data[0])
 
     # split data to train set and test set
     train_data, test_data = train_test_split(data, test_size=0.2)
@@ -40,7 +42,7 @@ def callback(channel, method, properties, body):
     train models
     '''
     # 1. lstm
-    model_lstm = LSTMModel(train_data, test_data)
+    model_lstm = LSTMOneDay(train_data, test_data)
     model_lstm.compile()
     model_lstm.train()
 
@@ -66,13 +68,16 @@ def callback(channel, method, properties, body):
     '''
     model_file = 'model.h5'
     scaler_file = 'scaler.pkl'
-    if best_alg == 'lstm':
-        model_lstm.save()
-    elif best_alg == 'arima':
-        model_file = 'model.pkl'
-        model_arima.save()  
-    else:       # set lstm as the default model
-        model_lstm.save()
+
+    model_lstm.save()
+    
+    # if best_alg == 'lstm':
+    #     model_lstm.save()
+    # elif best_alg == 'arima':
+    #     model_file = 'model.pkl'
+    #     model_arima.save()  
+    # else:       # set lstm as the default model
+    #     model_lstm.save()
 
 
     # upload model and necessary files to minio

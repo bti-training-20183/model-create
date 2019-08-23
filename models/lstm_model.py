@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from keras.layers import LSTM, Dense, Dropout, Flatten
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from sklearn.metrics import mean_squared_error
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 import os
@@ -16,7 +16,8 @@ class LSTMOneDay:
 		self.INPUT_DAYS = 60			# get input of ~ 2 months to train
 		self.OUTPUT_DAYS = 1			# predict 1 day
 		self.BATCH_SIZE = 32
-		self.EPOCHS = 100
+		# self.EPOCHS = 60
+		self.EPOCHS = 10
 
 		# normalize data
 		self.scaler = MinMaxScaler(feature_range=(0,1))
@@ -55,12 +56,13 @@ class LSTMOneDay:
 
 	def train(self):
 		es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-		mc = ModelCheckpoint('model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
+		mc = ModelCheckpoint('final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
 		
 		self.model.fit(self.x_train, self.y_train, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=1, validation_split=0.15, callbacks=[es, mc])
 
 	def save(self):
-		self.model.save("tmp/model.h5")
+		model = load_model("final_model.h5")
+		model.save("tmp/model.h5")
 		with open('tmp/scaler.pkl', 'wb') as pkl:
 			pickle.dump(self.scaler, pkl)
 
@@ -121,7 +123,7 @@ class LSTMFiveDays:
 
 	def train(self):
 		es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-		mc = ModelCheckpoint('model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
+		mc = ModelCheckpoint('final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
 		
 		self.model.fit(self.x_train, self.y_train, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=1, validation_split=0.15, callbacks=[es, mc])
 
@@ -187,7 +189,7 @@ class LSTMOneMonth:
 
 	def train(self):
 		es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-		mc = ModelCheckpoint('model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
+		mc = ModelCheckpoint('final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
 		
 		self.model.fit(self.x_train, self.y_train, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=1, validation_split=0.15, callbacks=[es, mc])
 
@@ -251,11 +253,12 @@ class LSTMSixMonths:
 
 	def train(self):
 		es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-		mc = ModelCheckpoint('model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
+		mc = ModelCheckpoint('final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
 		
 		self.model.fit(self.x_train, self.y_train, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=1, validation_split=0.15, callbacks=[es, mc])
 
 	def save(self):
+
 		self.model.save("tmp/model.h5")
 		with open('tmp/scaler.pkl', 'wb') as pkl:
 			pickle.dump(self.scaler, pkl)
