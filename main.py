@@ -45,20 +45,20 @@ def callback(channel, method, properties, body):
     model_lstm.train()
 
     # 2. arima
-    model_arima = ARIMAModel(train_data, test_data)
+    # model_arima = ARIMAModel(train_data, test_data)
 
 
-    '''
-    find the best model
-    '''
-    final_scores = dict()
-    rmse_loss_lstm = model_lstm.rmse_loss()
-    final_scores['lstm'] = rmse_loss_lstm
+    # '''
+    # find the best model
+    # '''
+    # final_scores = dict()
+    # rmse_loss_lstm = model_lstm.rmse_loss()
+    # final_scores['lstm'] = rmse_loss_lstm
 
-    rmse_loss_arima = model_arima.rmse_loss()
-    final_scores['arima'] = rmse_loss_arima
+    # rmse_loss_arima = model_arima.rmse_loss()
+    # final_scores['arima'] = rmse_loss_arima
 
-    best_alg = min(final_scores.keys(), key=(lambda k: final_scores[k]))
+    # best_alg = min(final_scores.keys(), key=(lambda k: final_scores[k]))
 
     
     '''
@@ -66,13 +66,13 @@ def callback(channel, method, properties, body):
     '''
     model_file = 'model.h5'
     scaler_file = 'scaler.pkl'
-    if best_alg == 'lstm':
-        model_lstm.save()
-    elif best_alg == 'arima':
-        model_file = 'model.pkl'
-        model_arima.save()  
-    else:       # set lstm as the default model
-        model_lstm.save()
+    # if best_alg == 'lstm':
+    model_lstm.save()
+    # elif best_alg == 'arima':
+    #     model_file = 'model.pkl'
+    #     model_arima.save()  
+    # else:       # set lstm as the default model
+    #     model_lstm.save()
 
 
     # upload model and necessary files to minio
