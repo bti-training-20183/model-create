@@ -16,8 +16,8 @@ class LSTMOneDay:
 		self.INPUT_DAYS = 60			# get input of ~ 2 months to train
 		self.OUTPUT_DAYS = 1			# predict 1 day
 		self.BATCH_SIZE = 32
-		# self.EPOCHS = 60
-		self.EPOCHS = 10
+		# self.EPOCHS = 100
+		self.EPOCHS = 1
 
 		# normalize data
 		self.scaler = MinMaxScaler(feature_range=(0,1))
@@ -56,15 +56,13 @@ class LSTMOneDay:
 
 	def train(self):
 		es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-		mc = ModelCheckpoint('final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
+		mc = ModelCheckpoint('one_day_final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
 		
 		self.model.fit(self.x_train, self.y_train, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=1, validation_split=0.15, callbacks=[es, mc])
 
 	def save(self):
-		model = load_model("final_model.h5")
-		model.save("tmp/model.h5")
-		with open('tmp/scaler.pkl', 'wb') as pkl:
-			pickle.dump(self.scaler, pkl)
+		model = load_model("one_day_final_model.h5")
+		model.save("tmp/one_day_model.h5")
 
 	def rmse_loss(self):
 		preds = self.model.predict(self.x_test)
@@ -84,7 +82,8 @@ class LSTMFiveDays:
 		self.INPUT_DAYS = 60			# get input of ~ 2 months to train
 		self.OUTPUT_DAYS = 5			# predict 1 day
 		self.BATCH_SIZE = 32
-		self.EPOCHS = 100
+		# self.EPOCHS = 100
+		self.EPOCHS = 1
 
 		# normalize data
 		self.scaler = MinMaxScaler(feature_range=(0,1))
@@ -99,14 +98,14 @@ class LSTMFiveDays:
 		for i in range(len(data) - self.INPUT_DAYS - self.OUTPUT_DAYS):
 			X.append(data[i:i+self.INPUT_DAYS])
 			y.append(data[i+self.INPUT_DAYS : i+self.INPUT_DAYS+self.OUTPUT_DAYS, 3])  # 3 is the index of 'Close' colum in data
-		return X, y
+		return np.array(X), np.array(y)
 
 	def create_timeseries_test(self, data_scaled, data):		# input are all 6 feature values, output is just 'Close' value;
 		X, y = [], []
 		for i in range(len(data) - self.INPUT_DAYS - self.OUTPUT_DAYS):
 			X.append(data_scaled[i:i+self.INPUT_DAYS])
 			y.append(data[i+self.INPUT_DAYS:i+self.INPUT_DAYS+self.OUTPUT_DAYS, 3])  # 3 is the index of 'Close' colum in data
-		return X, y
+		return np.array(X), np.array(y)
 
 	def compile(self):
 		self.model = Sequential()
@@ -123,14 +122,13 @@ class LSTMFiveDays:
 
 	def train(self):
 		es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-		mc = ModelCheckpoint('final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
+		mc = ModelCheckpoint('five_days_final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
 		
 		self.model.fit(self.x_train, self.y_train, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=1, validation_split=0.15, callbacks=[es, mc])
 
 	def save(self):
-		self.model.save("tmp/model.h5")
-		with open('tmp/scaler.pkl', 'wb') as pkl:
-			pickle.dump(self.scaler, pkl)
+		model = load_model("five_days_final_model.h5")
+		model.save("tmp/five_days_model.h5")
 
 	def rmse_loss(self):
 		preds = self.model.predict(self.x_test)
@@ -150,7 +148,8 @@ class LSTMOneMonth:
 		self.INPUT_DAYS = 60			# get input of ~ 2 months to train
 		self.OUTPUT_DAYS = 30			# predict 1 day
 		self.BATCH_SIZE = 32
-		self.EPOCHS = 100
+		# self.EPOCHS = 100
+		self.EPOCHS = 1
 
 		# normalize data
 		self.scaler = MinMaxScaler(feature_range=(0,1))
@@ -165,14 +164,14 @@ class LSTMOneMonth:
 		for i in range(len(data) - self.INPUT_DAYS - self.OUTPUT_DAYS):
 			X.append(data[i:i+self.INPUT_DAYS])
 			y.append(data[i+self.INPUT_DAYS : i+self.INPUT_DAYS+self.OUTPUT_DAYS, 3])  # 3 is the index of 'Close' colum in data
-		return X, y
+		return np.array(X), np.array(y)
 
 	def create_timeseries_test(self, data_scaled, data):		# input are all 6 feature values, output is just 'Close' value;
 		X, y = [], []
 		for i in range(len(data) - self.INPUT_DAYS - self.OUTPUT_DAYS):
 			X.append(data_scaled[i:i+self.INPUT_DAYS])
 			y.append(data[i+self.INPUT_DAYS:i+self.INPUT_DAYS+self.OUTPUT_DAYS, 3])  # 3 is the index of 'Close' colum in data
-		return X, y
+		return np.array(X), np.array(y)
 
 	def compile(self):
 		self.model = Sequential()
@@ -189,14 +188,13 @@ class LSTMOneMonth:
 
 	def train(self):
 		es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-		mc = ModelCheckpoint('final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
+		mc = ModelCheckpoint('one_month_final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
 		
 		self.model.fit(self.x_train, self.y_train, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=1, validation_split=0.15, callbacks=[es, mc])
 
 	def save(self):
-		self.model.save("tmp/model.h5")
-		with open('tmp/scaler.pkl', 'wb') as pkl:
-			pickle.dump(self.scaler, pkl)
+		model = load_model("one_month_final_model.h5")
+		model.save("tmp/one_month_model.h5")
 
 	def rmse_loss(self):
 		preds = self.model.predict(self.x_test)
@@ -214,7 +212,8 @@ class LSTMSixMonths:
 		self.INPUT_DAYS = 60			# get input of ~ 2 months to train
 		self.OUTPUT_DAYS = 180			# predict 1 day
 		self.BATCH_SIZE = 32
-		self.EPOCHS = 100
+		# self.EPOCHS = 100
+		self.EPOCHS = 1
 
 		# normalize data
 		self.scaler = MinMaxScaler(feature_range=(0,1))
@@ -229,14 +228,14 @@ class LSTMSixMonths:
 		for i in range(len(data) - self.INPUT_DAYS - self.OUTPUT_DAYS):
 			X.append(data[i:i+self.INPUT_DAYS])
 			y.append(data[i+self.INPUT_DAYS : i+self.INPUT_DAYS+self.OUTPUT_DAYS, 3])  # 3 is the index of 'Close' colum in data
-		return X, y
+		return np.array(X), np.array(y)
 
 	def create_timeseries_test(self, data_scaled, data):		# input are all 6 feature values, output is just 'Close' value;
 		X, y = [], []
 		for i in range(len(data) - self.INPUT_DAYS - self.OUTPUT_DAYS):
 			X.append(data_scaled[i:i+self.INPUT_DAYS])
 			y.append(data[i+self.INPUT_DAYS:i+self.INPUT_DAYS+self.OUTPUT_DAYS, 3])  # 3 is the index of 'Close' colum in data
-		return X, y
+		return np.array(X), np.array(y)
 
 	def compile(self):
 		self.model = Sequential()
@@ -253,15 +252,13 @@ class LSTMSixMonths:
 
 	def train(self):
 		es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-		mc = ModelCheckpoint('final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
+		mc = ModelCheckpoint('six_months_final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
 		
 		self.model.fit(self.x_train, self.y_train, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=1, validation_split=0.15, callbacks=[es, mc])
 
 	def save(self):
-
-		self.model.save("tmp/model.h5")
-		with open('tmp/scaler.pkl', 'wb') as pkl:
-			pickle.dump(self.scaler, pkl)
+		model = load_model("six_months_final_model.h5")
+		model.save("tmp/six_months_model.h5")
 
 	def rmse_loss(self):
 		preds = self.model.predict(self.x_test)
@@ -281,7 +278,8 @@ class LSTMOneYear:
 		self.INPUT_DAYS = 60			# get input of ~ 2 months to train
 		self.OUTPUT_DAYS = 365			# predict 1 day
 		self.BATCH_SIZE = 32
-		self.EPOCHS = 100
+		# self.EPOCHS = 100
+		self.EPOCHS = 1
 
 		# normalize data
 		self.scaler = MinMaxScaler(feature_range=(0,1))
@@ -296,14 +294,14 @@ class LSTMOneYear:
 		for i in range(len(data) - self.INPUT_DAYS - self.OUTPUT_DAYS):
 			X.append(data[i:i+self.INPUT_DAYS])
 			y.append(data[i+self.INPUT_DAYS : i+self.INPUT_DAYS+self.OUTPUT_DAYS, 3])  # 3 is the index of 'Close' colum in data
-		return X, y
+		return np.array(X), np.array(y)
 
 	def create_timeseries_test(self, data_scaled, data):		# input are all 6 feature values, output is just 'Close' value;
 		X, y = [], []
 		for i in range(len(data) - self.INPUT_DAYS - self.OUTPUT_DAYS):
 			X.append(data_scaled[i:i+self.INPUT_DAYS])
 			y.append(data[i+self.INPUT_DAYS:i+self.INPUT_DAYS+self.OUTPUT_DAYS, 3])  # 3 is the index of 'Close' colum in data
-		return X, y
+		return np.array(X), np.array(y)
 
 	def compile(self):
 		self.model = Sequential()
@@ -320,14 +318,13 @@ class LSTMOneYear:
 
 	def train(self):
 		es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-		mc = ModelCheckpoint('model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
+		mc = ModelCheckpoint('one_year_final_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose=1)
 
 		self.model.fit(self.x_train, self.y_train, epochs=self.EPOCHS, batch_size=self.BATCH_SIZE, verbose=1, validation_split=0.15, callbacks=[es, mc])
 
 	def save(self):
-		self.model.save("tmp/model.h5")
-		with open('tmp/scaler.pkl', 'wb') as pkl:
-			pickle.dump(self.scaler, pkl)
+		model = load_model("one_year_final_model.h5")		
+		model.save("tmp/one_year_model.h5")
 
 	def rmse_loss(self):
 		preds = self.model.predict(self.x_test)
