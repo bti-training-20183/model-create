@@ -1,7 +1,7 @@
 from utils.datastore_handler import DataStore_Handler
 from utils.database_handler import Database_Handler
 from utils.message_handler import Message_Handler
-from models.lstm_model import LSTMOneDay, LSTMFiveDays, LSTMOneMonth, LSTMSixMonths, LSTMOneYear
+from models.lstm_model import LSTMModel
 from models.arima_model import ARIMAModel
 from sklearn.model_selection import train_test_split
 import pandas
@@ -38,177 +38,24 @@ def callback(channel, method, properties, body):
     train_data, test_data = train_test_split(data, test_size=0.2)
 
     scaler_file = 'scaler.pkl'
+    model_file = 'model.h5'
 
     # ==================================================================
-    # PREDICTION FOR ONE DAY
-    # ==================================================================
-    '''
-    train models
-    '''
-    # 1. lstm
-    model_lstm = LSTMOneDay(train_data, test_data)
-    model_lstm.compile()
-    model_lstm.train()
-
-    # 2. arima
-    # model_arima = ARIMAModel(train_data, test_data)
-
-
-    '''    find the best model    '''
-    # final_scores = dict()
-    # rmse_loss_lstm = model_lstm.rmse_loss()
-    # final_scores['lstm'] = rmse_loss_lstm
-
-    # rmse_loss_arima = model_arima.rmse_loss()
-    # final_scores['arima'] = rmse_loss_arima
-
-    # best_alg = min(final_scores.keys(), key=(lambda k: final_scores[k]))
-
-    
-    '''    save the best model    '''
-    model_file_one_day = 'one_day_model.h5'
-
-    model_lstm.save()
-    
-    # if best_alg == 'lstm':
-    #     model_lstm.save()
-    # elif best_alg == 'arima':
-    #     model_file = 'model.pkl'
-    #     model_arima.save()  
-    # else:       # set lstm as the default model
-    #     model_lstm.save()
-
-
-    # ==================================================================
-    # PREDICTION FOR FIVE DAYS
+    # PREDICTION FOR THREE MONTHS
     # ==================================================================
     '''    train models    '''
-    # 1. lstm
-    model_lstm = LSTMFiveDays(train_data, test_data)
+    model_lstm = LSTMModel(train_data, test_data)
     model_lstm.compile()
     model_lstm.train()
-
-    # 2. arima
-    # model_arima = ARIMAModel(train_data, test_data)
-
-
-    '''    find the best model    '''
-    # final_scores = dict()
-    # rmse_loss_lstm = model_lstm.rmse_loss()
-    # final_scores['lstm'] = rmse_loss_lstm
-
-    # rmse_loss_arima = model_arima.rmse_loss()
-    # final_scores['arima'] = rmse_loss_arima
-
-    # best_alg = min(final_scores.keys(), key=(lambda k: final_scores[k]))
-
     
     '''    save the best model    '''
-    model_file_five_days = 'five_days_model.h5'
-
     model_lstm.save()
-
-
-
-    # ==================================================================
-    # PREDICTION FOR ONE MONTH
-    # ==================================================================
-    '''    train models    '''
-    # 1. lstm
-    model_lstm = LSTMOneMonth(train_data, test_data)
-    model_lstm.compile()
-    model_lstm.train()
-
-    # 2. arima
-    # model_arima = ARIMAModel(train_data, test_data)
-
-
-    '''    find the best model    '''
-    # final_scores = dict()
-    # rmse_loss_lstm = model_lstm.rmse_loss()
-    # final_scores['lstm'] = rmse_loss_lstm
-
-    # rmse_loss_arima = model_arima.rmse_loss()
-    # final_scores['arima'] = rmse_loss_arima
-
-    # best_alg = min(final_scores.keys(), key=(lambda k: final_scores[k]))
-
-    
-    '''    save the best model    '''
-    model_file_one_month = 'one_month_model.h5'
-
-    model_lstm.save()
-
-
-
-    # ==================================================================
-    # PREDICTION FOR SIX MONTHS
-    # ==================================================================
-    '''    train models    '''
-    # 1. lstm
-    model_lstm = LSTMSixMonths(train_data, test_data)
-    model_lstm.compile()
-    model_lstm.train()
-
-    # 2. arima
-    # model_arima = ARIMAModel(train_data, test_data)
-
-
-    '''    find the best model    '''
-    # final_scores = dict()
-    # rmse_loss_lstm = model_lstm.rmse_loss()
-    # final_scores['lstm'] = rmse_loss_lstm
-
-    # rmse_loss_arima = model_arima.rmse_loss()
-    # final_scores['arima'] = rmse_loss_arima
-
-    # best_alg = min(final_scores.keys(), key=(lambda k: final_scores[k]))
-
-    
-    '''    save the best model    '''
-    model_file_six_months = 'six_months_model.h5'
-
-    model_lstm.save()
-
-
-
-    # ==================================================================
-    # PREDICTION FOR ONE YEAR
-    # ==================================================================
-    '''    train models    '''
-    # 1. lstm
-    model_lstm = LSTMOneYear(train_data, test_data)
-    model_lstm.compile()
-    model_lstm.train()
-
-    # 2. arima
-    # model_arima = ARIMAModel(train_data, test_data)
-
-
-    '''    find the best model    '''
-    # final_scores = dict()
-    # rmse_loss_lstm = model_lstm.rmse_loss()
-    # final_scores['lstm'] = rmse_loss_lstm
-
-    # rmse_loss_arima = model_arima.rmse_loss()
-    # final_scores['arima'] = rmse_loss_arima
-
-    # best_alg = min(final_scores.keys(), key=(lambda k: final_scores[k]))
-
-    
-    '''    save the best model    '''
-    model_file_one_year = 'one_year_model.h5'
-
-    model_lstm.save()
-
-
 
 
     # upload model and necessary files to minio
-    files = [model_file_one_day, model_file_five_days, model_file_one_month, 
-                model_file_six_months, model_file_one_year, scaler_file] # filelist for forwarding to edge-server
+    files = [model_file, scaler_file] # filelist for forwarding to edge-server
     filename = received_msg['name']
-    file_extension = '.' + model_file_one_day.split('.')[-1]
+    file_extension = '.' + model_file.split('.')[-1]
     dest = filename + '/model/'
     for fname in files:
         if os.path.isfile('tmp/'+fname):         # some models don't have scaler.pkl, etc.
