@@ -4,6 +4,7 @@ from utils.message_handler import Message_Handler
 from models.lstm_model import LSTMModel
 from models.arima_model import ARIMAModel
 from sklearn.model_selection import train_test_split
+from keras import backend as K
 import pandas
 import os
 import sys
@@ -51,6 +52,7 @@ def callback(channel, method, properties, body):
     '''    save the best model    '''
     model_lstm.save()
 
+    K.clear_session()
 
     # upload model and necessary files to minio
     files = [model_file, scaler_file] # filelist for forwarding to edge-server
