@@ -35,7 +35,7 @@ def callback(channel, method, properties, body):
     print(data[0])
 
     # split data to train set and test set
-    train_data, test_data = train_test_split(data, test_size=0.2)
+    train_data, test_data = train_test_split(data, test_size=0.2, shuffle=False)
 
     scaler_file = 'scaler.pkl'
     model_file = 'model.h5'
