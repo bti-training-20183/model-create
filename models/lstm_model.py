@@ -16,8 +16,7 @@ class LSTMModel:
 		self.INPUT_DAYS = 90			# get input of 3 months to train
 		self.OUTPUT_DAYS = 90			# predict 3 months
 		self.BATCH_SIZE = 32
-		# self.EPOCHS = 100
-		self.EPOCHS = 1
+		self.EPOCHS = 100
 
 		# normalize data
 		self.scaler = MinMaxScaler(feature_range=(0,1))
@@ -45,11 +44,13 @@ class LSTMModel:
 		self.model = Sequential()
 		self.model.add(LSTM(units=50, return_sequences=True, input_shape=(self.x_train.shape[1], self.x_train.shape[2])))
 		self.model.add(Dropout(0.2))
-		self.model.add(LSTM(units=50, return_sequences=True))
+		self.model.add(LSTM(units = 40, return_sequences = True))
 		self.model.add(Dropout(0.2))
-		self.model.add(LSTM(units=50, return_sequences=True))
+		self.model.add(LSTM(units = 50, return_sequences = True))
 		self.model.add(Dropout(0.2))
-		self.model.add(LSTM(units=50))
+		self.model.add(LSTM(units = 40, return_sequences=True))
+		self.model.add(Dropout(0.2))
+		self.model.add(LSTM(units = 30))
 		self.model.add(Dropout(0.2))
 		self.model.add(Dense(self.OUTPUT_DAYS))
 		self.model.compile(loss='mean_squared_error', optimizer='adam')
